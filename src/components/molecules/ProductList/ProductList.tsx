@@ -1,12 +1,4 @@
 import React from 'react';
-import ProductItem from '../ProductItem/ProductItem';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  stock: number;
-}
 
 interface ProductListProps {
   products: Product[];
@@ -24,10 +16,10 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
           Name
         </th>
         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-          Price
+          Description
         </th>
         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-          Stock
+          Price
         </th>
       </tr>
     </thead>
@@ -41,10 +33,10 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
             {product.name}
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {product.price}
+            {product.description}
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {product.stock}
+            {product.price}
           </td>
         </tr>
       ))}

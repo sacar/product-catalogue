@@ -14,7 +14,7 @@ function App() {
       <div className="py-4">
         <Breadcrumb items={items} />
       </div>
-      <div className="font-serif my-2">
+      <div className="my-2">
         <ProductCataloguePage />
       </div>
     </Layout>

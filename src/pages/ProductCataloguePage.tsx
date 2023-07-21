@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ProductList from "../components/molecules/ProductList/ProductList";
 import Button from "../components/atoms/Button/Button";
 import ProductForm from "../components/molecules/ProductForm/ProdcutForm";
+import { Product } from "../types/product";
+import { connect, useDispatch, useSelector } from "react-redux";
+import { setProducts } from "../actions/action";
+import { RootState } from "../store/store";
 
 function getRandomProducts(numProducts: number): Product[] {
   const products: Product[] = [];
@@ -22,7 +26,6 @@ function getRandomProducts(numProducts: number): Product[] {
 
 const ProductCataloguePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [productList, setProductList] = useState<Product[]>(getRandomProducts(10))
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -32,18 +35,8 @@ const ProductCataloguePage: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const handleAddProduct = (
-    product: Product,
-  ) => {
-    const newProduct: Product = {
-      id: productList.length + 1, // Generate a random ID
-      name : product.name,
-      description: product.description,
-      price : product.price,
-    };
-
-    setProductList([...productList, newProduct]);
-    setIsModalOpen(false);
+  const handleAddProduct = (product: Product) => {
+    console.log("add product", product);
   };
 
   return (
@@ -57,11 +50,14 @@ const ProductCataloguePage: React.FC = () => {
         <Button type="primary" label="Add Product" onClick={handleOpenModal} />
       </div>
       <div className="mt-3">
-        <ProductList products={productList} />
+        <ProductList />
       </div>
-      <ProductForm isOpen={isModalOpen} onAddProduct={handleAddProduct} onClose={handleCloseModal} />
+      <ProductForm
+        isOpen={isModalOpen}
+        onAddProduct={handleAddProduct}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };
-
 export default ProductCataloguePage;

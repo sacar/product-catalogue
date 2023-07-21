@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { setProducts } from "../../../actions/action";
 import { useState } from "react";
 import axios from "axios";
+import TrashButton from "../../atoms/Button/IconButton";
 
 // Define the ProductListProps type based on the Redux store state
 const mapState = (state: RootState) => ({
@@ -45,19 +46,29 @@ const ProductList: React.FC<ProductListProps> = ({ products, setProducts }) => {
       }
     };
 
-    fetchProducts();
+    void fetchProducts();
   }, [setProducts]);
 
-  // Log products to check if the state is being updated
-  useEffect(() => {
-    console.log("Updated products:", products, products.length, typeof products);
-    if(products.length > 0) {
-      products.forEach(item => {
-        console.log("item", item)
-      })
-    }
 
-  }, [products]);
+
+  const deleteProduct = async (productId: string) => {
+    try {
+      console.log("this is pid", productId)
+      // Make API call to delete the product
+      await axios.delete(`https://rgwvhnxr23.execute-api.us-east-1.amazonaws.com/dev/product/${productId}`);
+
+      // Update the Redux state by removing the deleted product
+      const updatedProducts = products.filter((product) => product.id !== productId);
+      setProducts(updatedProducts);
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
+
+  const handleDelete = (productId:string) => {
+    void deleteProduct(productId)
+  }
+
 
   return (
     <table className="min-w-full divide-y divide-gray-200">
@@ -74,6 +85,9 @@ const ProductList: React.FC<ProductListProps> = ({ products, setProducts }) => {
           </th>
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
             Price
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Action
           </th>
         </tr>
       </thead>
@@ -92,6 +106,9 @@ const ProductList: React.FC<ProductListProps> = ({ products, setProducts }) => {
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {product.price}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <TrashButton onClick={() => {handleDelete(product.id)}}/>
               </td>
             </tr>
           ))}

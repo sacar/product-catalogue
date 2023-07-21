@@ -1,78 +1,72 @@
 import React, { useState } from "react";
 import TextInput from "../../atoms/TextInput/TextInput";
 import Modal from "../Modal/Modal";
+import { Product } from "../../../types/product";
+import { useDispatch } from "react-redux";
+import { addProductAsync } from "../../../actions/thunk";
 
 interface ProductFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddProduct: (product: Product) => void;
 }
 
 interface FieldErrors {
-  [fieldName: string]: string[];
+  [fieldName: string]: string;
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({
-  isOpen,
-  onClose,
-  onAddProduct,
-}) => {
+const ProductForm: React.FC<ProductFormProps> = ({ isOpen, onClose }) => {
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
   const [errors, setErrors] = useState<FieldErrors>({
-    name: [],
-    description: [],
-    price: [],
-    imageUrl: [],
+    name: "",
+    description: "",
+    price: "",
+    imageUrl: "",
   });
 
-  const validateField = (fieldName: string, value: string): string[] => {
-    const fieldErrors: string[] = [];
-
+  const validateField = (fieldName: string, value: string): string => {
     // Add specific validations for each field
     switch (fieldName) {
       case "name":
-        if (!value) {
-          fieldErrors.push("Name is required");
+        if (!value.trim()) {
+          return "Name is required";
         }
         break;
       case "description":
-        if (!value) {
-          fieldErrors.push("Description is required");
+        if (!value.trim()) {
+          return "Description is required";
         }
         break;
       case "price":
         if (!value) {
-          fieldErrors.push("Price is required");
+          return "Price is required";
         } else if (parseFloat(value) <= 0) {
-          fieldErrors.push("Price must be greater than zero");
+          return "Price must be greater than zero";
         }
         break;
       case "imageUrl":
-        if (!value) {
-          fieldErrors.push("Image URL is required");
+        if (!value.trim()) {
+          return "Image URL is required";
         }
         break;
       default:
         break;
     }
 
-    return fieldErrors;
+    return ""; // No error
   };
 
-  const handleSubmit = () => {
-    // Validate required fields
-    const newErrors: FieldErrors = {};
+  const dispatch = useDispatch();
 
-    // Validate each field
-    Object.keys(errors).forEach((fieldName) => {
-      const fieldErrors = validateField(fieldName, ({} as any)[fieldName]);
-      if (fieldErrors.length > 0) {
-        newErrors[fieldName] = fieldErrors;
-      }
-    });
+  const handleSubmit = () => {
+    const newErrors: FieldErrors = {
+      name: validateField("name", name),
+      description: validateField("description", description),
+      price: validateField("price", price),
+      imageUrl: validateField("imageUrl", imageUrl),
+    };
 
     // Check if any errors exist
     if (Object.values(newErrors).some((error) => error)) {
@@ -80,15 +74,15 @@ const ProductForm: React.FC<ProductFormProps> = ({
       return;
     }
 
-    const product: Product = {
-      id: Math.floor(Math.random() * 1000),
+    const product = {
       name,
       description,
       price: parseFloat(price),
-      imageUrl,
+      image_url: imageUrl,
     };
 
-    onAddProduct(product);
+    // Dispatch the addProductAsync thunk to add the product and update the store
+    dispatch(addProductAsync(product));
     setName("");
     setDescription("");
     setPrice("");
@@ -97,12 +91,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
   };
 
   const handleTextInputChange = (value: string, fieldName: string) => {
-    // Clear the error messages for the specific field
+    // Clear the error message for the specific field
     setErrors((prevErrors) => ({
       ...prevErrors,
-      [fieldName]: Array.isArray(prevErrors[fieldName])
-        ? []
-        : prevErrors[fieldName],
+      [fieldName]: "", // Clear the error for the field when the input value changes
     }));
 
     // Update the input value
@@ -140,25 +132,25 @@ const ProductForm: React.FC<ProductFormProps> = ({
         label="Name"
         value={name}
         onChange={(value) => handleTextInputChange(value, "name")}
-        errors={errors.name}
+        error={errors.name}
       />
       <TextInput
         label="Description"
         value={description}
         onChange={(value) => handleTextInputChange(value, "description")}
-        errors={errors.description}
+        error={errors.description}
       />
       <TextInput
         label="Price"
         value={price}
         onChange={(value) => handleTextInputChange(value, "price")}
-        errors={errors.price}
+        error={errors.price}
       />
       <TextInput
         label="Image URL"
         value={imageUrl}
         onChange={(value) => handleTextInputChange(value, "imageUrl")}
-        errors={errors.imageUrl}
+        error={errors.imageUrl}
       />
     </Modal>
   );
